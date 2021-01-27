@@ -1,0 +1,56 @@
+input SaveStoreInput{
+    name:String
+    location:CoordinatesInput!
+    accessToken:String!
+}
+
+input CreateUserInput{
+    username:String!
+    password:String!
+}
+
+input LoginUserInput{
+    username:String!
+    password:String!
+}
+
+input CoordinatesInput{
+    latitude:Float!
+    longitude:Float!
+}
+
+type Coordinates{
+    latitude:Float!
+    longitude:Float!
+}
+
+type Store{
+    id:String!
+    name:String
+    coordinates:Coordinates!
+}
+
+type User{
+    username:String!
+    password:String!
+}
+
+type UserCredentials{
+    user:User!
+    credentials:Credentials!
+}
+
+type Credentials{
+    accessToken:String!
+    refreshToken:String!
+}
+
+type Query {
+    findAllStores:[Store]!
+}
+
+type Mutation {
+    loginUser(loginUserInput:LoginUserInput!):UserCredentials
+    createUser(createUserInput:CreateUserInput!):UserCredentials
+    saveStore(input:SaveStoreInput!) : Store
+}
