@@ -7,20 +7,38 @@ import java.util.*
 
 object JWTToken {
 
-    fun validateJWTToken(token: String): String? {
-        return JWT.require(HMAC512(SECRET))
+    fun validateJWTToken(token: String, withAuthorities: List<Authority>): String? = try {
+        val jwt = JWT.require(HMAC512(SECRET))
                 .build()
                 .verify(token)
-                .subject
+        if (getAuthorities(token) == withAuthorities) {
+            jwt.subject
+        } else {
+            null
+        }
+
+    } catch (e: Exception) {
+        null
     }
 
-    fun getJWTToken(username: String): String {
-        return JWT.create()
-                .withSubject(username)
-                .withExpiresAt(Date(System.currentTimeMillis() + 864_000_000))
-                .sign(HMAC512(SECRET))
+    fun getAuthorities(token: String): List<Authority> = JWT.require(HMAC512(SECRET))
+            .build().verify(token).claims[AUTHORITIES_KEY]?.asArray(Authority::class.java)?.toList() ?: emptyList()
 
-    }
+    fun getJWTToken(username: String, authorities: List<Authority>, expireTime: Int? = null): String = JWT.create()
+            .withSubject(username)
+            .withArrayClaim(AUTHORITIES_KEY, authorities.map {
+                it.name
+            }.toTypedArray())
+            .withExpiresAt(Date(System.currentTimeMillis() + (expireTime ?: DEFAULT_EXPIRE_TIME)))
+            .sign(HMAC512(SECRET))
+
 
     private const val SECRET = "SecretKeyToGenJWTs"
+    private const val AUTHORITIES_KEY = "authorities"
+    private const val DEFAULT_EXPIRE_TIME = 864000000
+}
+
+enum class Authority {
+    ADMIN_STORES,
+    SEND_TIPS
 }

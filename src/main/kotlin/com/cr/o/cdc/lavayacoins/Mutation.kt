@@ -1,47 +1,104 @@
 package com.cr.o.cdc.lavayacoins
 
-import com.coxautodev.graphql.tools.GraphQLMutationResolver
-import com.cr.o.cdc.lavayacoins.inputs.CreateUserInput
-import com.cr.o.cdc.lavayacoins.inputs.LoginUserInput
+import com.cr.o.cdc.lavayacoins.db.CustomerUser
+import com.cr.o.cdc.lavayacoins.db.Store
+import com.cr.o.cdc.lavayacoins.inputs.CreateCustomerUserInput
+import com.cr.o.cdc.lavayacoins.inputs.LoginAdminUserInput
+import com.cr.o.cdc.lavayacoins.inputs.LoginCustomerUserInput
 import com.cr.o.cdc.lavayacoins.inputs.SaveStoreInput
-import com.cr.o.cdc.lavayacoins.model.*
-import com.cr.o.cdc.lavayacoins.repos.UserRepository
+import com.cr.o.cdc.lavayacoins.repos.StoreRepository
+import com.cr.o.cdc.lavayacoins.responses.*
+import com.cr.o.cdc.lavayacoins.services.CustomerUserService
+import com.cr.o.cdc.lavayacoins.utils.Authority
 import com.cr.o.cdc.lavayacoins.utils.JWTToken
+import graphql.kickstart.tools.GraphQLMutationResolver
 import org.springframework.stereotype.Component
 
 @Component
-class Mutation(val userRepository: UserRepository) : GraphQLMutationResolver {
+class Mutation(
+        val userService: CustomerUserService,
+        val storeRepository: StoreRepository
+) : GraphQLMutationResolver {
 
-    fun saveStore(storeInput: SaveStoreInput): Store? =
-            if (JWTToken.validateJWTToken(storeInput.accessToken) != null) {
-                Store("", "d", Coordinates(0f, 0f))
-            } else {
-                null
-            }
+    fun saveStore(storeInput: SaveStoreInput): SaveStoreResult {
+        val neededAuthorities = listOf(Authority.ADMIN_STORES)
+        return if (JWTToken.validateJWTToken(storeInput.accessToken, neededAuthorities) != null) {
+            SaveStoreSuccess(storeRepository.save(Store("", storeInput.name, storeInput.location.toCoordinates())))
+        } else {
+            SaveStoreErrorInvalidAuthorities(
+                    neededAuthorities,
+                    JWTToken.getAuthorities(storeInput.accessToken)
 
-    fun loginUser(loginUserInput: LoginUserInput): UserCredentials? =
-            userRepository.findById(loginUserInput.username).get().let {
-                UserCredentials(
-                        it,
-                        Credentials(
-                                JWTToken.getJWTToken(it.username),
-                                ""
+            )
+        }
+    }
+
+    fun loginCustomerUser(loginCustomerUserInput: LoginCustomerUserInput): CustomerUserCredentials? =
+            userService.findById(loginCustomerUserInput.username)
+                    ?.takeIf { it.password == loginCustomerUserInput.password }
+                    ?.let {
+                        CustomerUserCredentials(
+                                it,
+                                Credentials(
+                                        JWTToken.getJWTToken(
+                                                it.username,
+                                                listOf(Authority.SEND_TIPS)
+                                        ),
+                                        ""
+                                )
                         )
-                )
-            }
+                    }
+
+    fun loginAdminUser(loginAdminUserInput: LoginAdminUserInput): AdminUserCredentials? =
+            userService.findById(loginAdminUserInput.username)
+                    ?.takeIf { it.password == loginAdminUserInput.password }
+                    ?.let {
+                        AdminUserCredentials(
+                                it,
+                                Credentials(
+                                        JWTToken.getJWTToken(
+                                                it.username,
+                                                listOf(Authority.ADMIN_STORES)
+                                        ),
+                                        ""
+                                )
+                        )
+                    }
 
 
-    fun createUser(createUserInput: CreateUserInput): UserCredentials? = userRepository.save(
-            CustomerUser(createUserInput.username, createUserInput.password)
+    fun createAdminUser(createAdminUserInput: CreateCustomerUserInput): AdminUserCredentials? = userService.save(
+            CustomerUser(createAdminUserInput.username, createAdminUserInput.password),
+            createAdminUserInput.username
     )?.let {
-        UserCredentials(
+        AdminUserCredentials(
                 it,
                 Credentials(
-                        JWTToken.getJWTToken(it.username),
+                        JWTToken.getJWTToken(
+                                it.username,
+                                listOf(Authority.ADMIN_STORES)
+                        ),
                         ""
                 )
         )
 
     }
+
+    fun createCustomerUser(createCustomerUserInput: CreateCustomerUserInput): CustomerUserCredentials? =
+            userService.save(
+                    CustomerUser(createCustomerUserInput.username, createCustomerUserInput.password),
+                    createCustomerUserInput.username
+            )?.let {
+                CustomerUserCredentials(
+                        it,
+                        Credentials(
+                                JWTToken.getJWTToken(
+                                        it.username,
+                                        listOf(Authority.SEND_TIPS)
+                                ),
+                                ""
+                        )
+                )
+
+            }
 
 }

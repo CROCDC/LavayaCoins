@@ -1,4 +1,4 @@
-package com.cr.o.cdc.lavayacoins.model
+package com.cr.o.cdc.lavayacoins.db
 
 import javax.persistence.Entity
 import javax.persistence.Id

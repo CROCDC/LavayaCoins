@@ -1,0 +1,89 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven { url "https://oss.jfrog.org/artifactory/oss-snapshot-local" }
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.9.RELEASE")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.0")
+        classpath("org.jetbrains.kotlin:kotlin-allopen:1.4.0")
+        classpath("org.jetbrains.kotlin:kotlin-noarg:1.4.0")
+
+    }
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url "https://oss.jfrog.org/artifactory/oss-snapshot-local" }
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'kotlin-spring'
+apply plugin: 'kotlin-jpa'
+apply plugin: 'kotlin-allopen'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+
+group = "com.cr.o.cdc"
+version = "0.0.1-SNAPSHOT"
+
+allOpen {
+    annotation("javax.persistence.Entity")
+    annotation("javax.persistence.Embeddable")
+}
+
+dependencies {
+
+    // start kotlin libraries
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    // end kotlin libraries
+
+    // start spring libraries
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    // end spring libraries
+
+    // start graphql libraries
+    implementation 'com.graphql-java-kickstart:graphql-spring-boot-starter:11.0.0'
+    runtimeOnly 'com.graphql-java-kickstart:graphiql-spring-boot-starter:11.0.0'
+    // end graphql libraries
+
+    // start mysql libraries
+    implementation("mysql:mysql-connector-java")
+    implementation("org.postgresql:postgresql:42.2.2")
+    // end mysql libraries
+
+    // start jwt libraries
+    implementation("com.auth0:java-jwt:3.4.0")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.2")
+    // end jwt libraries
+
+    // start test libraries
+    // start h2 libraries
+    testImplementation("com.h2database:h2")
+    // end h2 libraries
+    // start spring libraries
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // end spring libraries
+    // end test libraries
+
+
+}
+
+compileKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-Xjsr305=strict"]
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        freeCompilerArgs = ["-Xjsr305=strict"]
+        jvmTarget = "1.8"
+    }
+}

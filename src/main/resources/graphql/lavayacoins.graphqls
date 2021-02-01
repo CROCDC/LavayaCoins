@@ -4,12 +4,21 @@ input SaveStoreInput{
     accessToken:String!
 }
 
-input CreateUserInput{
+input CreateCustomerUserInput{
     username:String!
     password:String!
 }
 
-input LoginUserInput{
+input CreateAdminUserInput{
+    username:String!
+    password:String!
+}
+
+input LoginCustomerUserInput{
+    username:String!
+    password:String!
+}
+input LoginAdminUserInput{
     username:String!
     password:String!
 }
@@ -30,13 +39,23 @@ type Store{
     coordinates:Coordinates!
 }
 
-type User{
+type CustomerUser{
     username:String!
     password:String!
 }
 
-type UserCredentials{
-    user:User!
+type AdminUser{
+    username:String!
+    password:String!
+}
+
+type CustomerUserCredentials{
+    user:CustomerUser!
+    credentials:Credentials!
+}
+
+type AdminUserCredentials{
+    user:CustomerUser!
     credentials:Credentials!
 }
 
@@ -45,12 +64,31 @@ type Credentials{
     refreshToken:String!
 }
 
+
+type SaveStoreErrorInvalidAuthorities {
+    neededAuthorities:[Authority]!
+    sendAuthorities:[Authority]!
+}
+
+type SaveStoreSuccess {
+    store:Store!
+}
+
+union SaveStoreResult = SaveStoreErrorInvalidAuthorities | SaveStoreSuccess
+
+enum Authority{
+    ADMIN_STORES,
+    SEND_TIPS
+}
+
 type Query {
     findAllStores:[Store]!
 }
 
 type Mutation {
-    loginUser(loginUserInput:LoginUserInput!):UserCredentials
-    createUser(createUserInput:CreateUserInput!):UserCredentials
-    saveStore(input:SaveStoreInput!) : Store
+    loginAdminUser(input:LoginCustomerUserInput!):AdminUserCredentials
+    createAdminUser(input:CreateAdminUserInput!):AdminUserCredentials
+    loginCustomerUser(input:LoginAdminUserInput!):CustomerUserCredentials
+    createCustomerUser(input:CreateCustomerUserInput!):CustomerUserCredentials
+    saveStore(input:SaveStoreInput!) :SaveStoreResult!
 }
