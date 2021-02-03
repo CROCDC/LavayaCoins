@@ -2,27 +2,31 @@ package com.cr.o.cdc.lavayacoins.utils
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm.HMAC512
+import com.auth0.jwt.interfaces.DecodedJWT
 import java.util.*
 
 
 object JWTToken {
 
-    fun validateJWTToken(token: String, withAuthorities: List<Authority>): String? = try {
-        val jwt = JWT.require(HMAC512(SECRET))
+    fun validateJWTToken(token: String, withAuthorities: List<Authority>): String? =
+            if (getAuthorities(token) == withAuthorities) {
+                getJWT(token)?.subject
+            } else {
+                null
+            }
+
+
+    private fun getJWT(token: String): DecodedJWT? = try {
+        JWT.require(HMAC512(SECRET))
                 .build()
                 .verify(token)
-        if (getAuthorities(token) == withAuthorities) {
-            jwt.subject
-        } else {
-            null
-        }
-
     } catch (e: Exception) {
         null
     }
 
-    fun getAuthorities(token: String): List<Authority> = JWT.require(HMAC512(SECRET))
-            .build().verify(token).claims[AUTHORITIES_KEY]?.asArray(Authority::class.java)?.toList() ?: emptyList()
+
+    fun getAuthorities(token: String): List<Authority> = getJWT(token)?.claims?.get(AUTHORITIES_KEY)
+            ?.asArray(Authority::class.java)?.toList() ?: emptyList()
 
     fun getJWTToken(username: String, authorities: List<Authority>, expireTime: Int? = null): String = JWT.create()
             .withSubject(username)
@@ -40,5 +44,6 @@ object JWTToken {
 
 enum class Authority {
     ADMIN_STORES,
-    SEND_TIPS
+    SEND_TIPS,
+    CREATE_ADMINS
 }

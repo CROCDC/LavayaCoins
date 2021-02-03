@@ -12,6 +12,8 @@ input CreateCustomerUserInput{
 input CreateAdminUserInput{
     username:String!
     password:String!
+    accessToken:String!
+    authorities:[Authority]!
 }
 
 input LoginCustomerUserInput{
@@ -47,6 +49,13 @@ type CustomerUser{
 type AdminUser{
     username:String!
     password:String!
+    adminAuthorities :[AdminAuthority]!
+}
+
+type AdminAuthority{
+    authority: Authority!,
+    creatorUsername: String!,
+    reason: String
 }
 
 type CustomerUserCredentials{
@@ -54,16 +63,14 @@ type CustomerUserCredentials{
     credentials:Credentials!
 }
 
-type AdminUserCredentials{
-    user:CustomerUser!
-    credentials:Credentials!
+type LoginAdminUserError{
+    error:LoginAdminErrorCause!
 }
 
 type Credentials{
     accessToken:String!
     refreshToken:String!
 }
-
 
 type SaveStoreErrorInvalidAuthorities {
     neededAuthorities:[Authority]!
@@ -74,20 +81,49 @@ type SaveStoreSuccess {
     store:Store!
 }
 
-union SaveStoreResult = SaveStoreErrorInvalidAuthorities | SaveStoreSuccess
+type LoginAdminSuccess{
+    user:AdminUser!
+    credentials:Credentials!
+}
+
+type CreateAdminSuccess{
+    user:AdminUser!
+    credentials:Credentials!
+}
+
+type CreateAdminUserError{
+    error:CreateAdminErrorCause!
+}
 
 enum Authority{
     ADMIN_STORES,
     SEND_TIPS
 }
 
+enum LoginAdminErrorCause{
+    PASSWORD_MISMATCH,
+    USER_NOT_EXIST,
+    UNKNOWN
+}
+
+enum CreateAdminErrorCause{
+    INVALID_AUTHORITIES,
+    USER_ALREADY_EXIST
+}
+
+union SaveStoreResult = SaveStoreErrorInvalidAuthorities | SaveStoreSuccess
+
+union LoginAdminResult = LoginAdminUserError | LoginAdminSuccess
+
+union CreateAdminResult = CreateAdminSuccess | CreateAdminUserError
+
 type Query {
     findAllStores:[Store]!
 }
 
 type Mutation {
-    loginAdminUser(input:LoginCustomerUserInput!):AdminUserCredentials
-    createAdminUser(input:CreateAdminUserInput!):AdminUserCredentials
+    loginAdminUser(input:LoginCustomerUserInput!):LoginAdminResult!
+    createAdminUser(input:CreateAdminUserInput!):CreateAdminResult!
     loginCustomerUser(input:LoginAdminUserInput!):CustomerUserCredentials
     createCustomerUser(input:CreateCustomerUserInput!):CustomerUserCredentials
     saveStore(input:SaveStoreInput!) :SaveStoreResult!

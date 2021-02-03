@@ -1,13 +1,13 @@
 package com.cr.o.cdc.lavayacoins
 
+import com.cr.o.cdc.lavayacoins.db.AdminAuthority
+import com.cr.o.cdc.lavayacoins.db.AdminUser
 import com.cr.o.cdc.lavayacoins.db.CustomerUser
 import com.cr.o.cdc.lavayacoins.db.Store
-import com.cr.o.cdc.lavayacoins.inputs.CreateCustomerUserInput
-import com.cr.o.cdc.lavayacoins.inputs.LoginAdminUserInput
-import com.cr.o.cdc.lavayacoins.inputs.LoginCustomerUserInput
-import com.cr.o.cdc.lavayacoins.inputs.SaveStoreInput
+import com.cr.o.cdc.lavayacoins.inputs.*
 import com.cr.o.cdc.lavayacoins.repos.StoreRepository
 import com.cr.o.cdc.lavayacoins.responses.*
+import com.cr.o.cdc.lavayacoins.services.AdminUserService
 import com.cr.o.cdc.lavayacoins.services.CustomerUserService
 import com.cr.o.cdc.lavayacoins.utils.Authority
 import com.cr.o.cdc.lavayacoins.utils.JWTToken
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component
 @Component
 class Mutation(
         val userService: CustomerUserService,
+        val adminUserService: AdminUserService,
         val storeRepository: StoreRepository
 ) : GraphQLMutationResolver {
 
@@ -49,39 +50,61 @@ class Mutation(
                         )
                     }
 
-    fun loginAdminUser(loginAdminUserInput: LoginAdminUserInput): AdminUserCredentials? =
-            userService.findById(loginAdminUserInput.username)
-                    ?.takeIf { it.password == loginAdminUserInput.password }
-                    ?.let {
-                        AdminUserCredentials(
-                                it,
-                                Credentials(
-                                        JWTToken.getJWTToken(
-                                                it.username,
-                                                listOf(Authority.ADMIN_STORES)
-                                        ),
-                                        ""
-                                )
-                        )
-                    }
-
-
-    fun createAdminUser(createAdminUserInput: CreateCustomerUserInput): AdminUserCredentials? = userService.save(
-            CustomerUser(createAdminUserInput.username, createAdminUserInput.password),
-            createAdminUserInput.username
-    )?.let {
-        AdminUserCredentials(
-                it,
-                Credentials(
-                        JWTToken.getJWTToken(
-                                it.username,
-                                listOf(Authority.ADMIN_STORES)
-                        ),
-                        ""
-                )
-        )
-
+    fun loginAdminUser(loginAdminUserInput: LoginAdminUserInput): LoginAdminResult? {
+        val adminUser = adminUserService.findById(loginAdminUserInput.username)
+        return when {
+            adminUser != null && loginAdminUserInput.password == adminUser.password -> LoginAdminSuccess(
+                    adminUser,
+                    Credentials(
+                            JWTToken.getJWTToken(
+                                    adminUser.username,
+                                    adminUser.adminAuthorities.map {
+                                        it.authority
+                                    }
+                            ),
+                            ""
+                    )
+            )
+            adminUser != null &&
+                    loginAdminUserInput.password != adminUser.password ->
+                LoginAdminUserError(LoginAdminErrorCause.PASSWORD_MISMATCH)
+            adminUser == null -> LoginAdminUserError(LoginAdminErrorCause.USER_NOT_EXIST)
+            else -> LoginAdminUserError(LoginAdminErrorCause.UNKNOWN)
+        }
     }
+
+
+    fun createAdminUser(createAdminUserInput: CreateAdminUserInput): CreateAdminResult = if (JWTToken.validateJWTToken(createAdminUserInput.accessToken, listOf(Authority.CREATE_ADMINS)) != null) {
+        adminUserService.save(
+                AdminUser(
+                        createAdminUserInput.username,
+                        createAdminUserInput.password,
+                        createAdminUserInput.authorities.map {
+                            AdminAuthority(
+                                    it,
+                                    "",
+                                    null
+                            )
+                        }
+                ),
+                createAdminUserInput.username
+        )?.let {
+            CreateAdminSuccess(
+                    it,
+                    Credentials(
+                            JWTToken.getJWTToken(
+                                    it.username,
+                                    createAdminUserInput.authorities
+                            ),
+                            ""
+                    )
+            )
+
+        } ?: CreateAdminUserError(CreateAdminErrorCause.USER_ALREADY_EXIST)
+    } else {
+        CreateAdminUserError(CreateAdminErrorCause.INVALID_AUTHORITIES)
+    }
+
 
     fun createCustomerUser(createCustomerUserInput: CreateCustomerUserInput): CustomerUserCredentials? =
             userService.save(

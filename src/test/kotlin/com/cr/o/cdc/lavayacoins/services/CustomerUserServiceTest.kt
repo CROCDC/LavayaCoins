@@ -12,14 +12,14 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.junit4.SpringRunner
 
 @RunWith(SpringRunner::class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CustomerUserServiceTest : ServiceTest<CustomerUserService>() {
 
     @Test
     fun findByIdWhenNotExist() {
         assertEquals(
                 null,
-                repository.findById("")
+                service.findById("")
         )
     }
 
@@ -27,7 +27,7 @@ class CustomerUserServiceTest : ServiceTest<CustomerUserService>() {
     fun findByIdWhenExist() {
         assertEquals(
                 getCustomerUserRomeroCamilo03(),
-                repository.findById(getUsernameRomeroCamilo03())
+                service.findById(getUsernameRomeroCamilo03())
         )
     }
 
@@ -35,7 +35,7 @@ class CustomerUserServiceTest : ServiceTest<CustomerUserService>() {
     fun saveWhenExist() {
         assertEquals(
                 null,
-                repository.save(getCustomerUserRomeroCamilo03(), getUsernameRomeroCamilo03())
+                service.save(getCustomerUserRomeroCamilo03(), getUsernameRomeroCamilo03())
         )
     }
 
@@ -43,7 +43,7 @@ class CustomerUserServiceTest : ServiceTest<CustomerUserService>() {
     fun saveWhenNotExist() {
         assertEquals(
                 getCustomerUserDummy(),
-                repository.save(getCustomerUserDummy(), getUsernameDummy())
+                service.save(getCustomerUserDummy(), getUsernameDummy())
         )
     }
 }

@@ -5,5 +5,5 @@ import org.springframework.beans.factory.annotation.Autowired
 
 abstract class ServiceTest<T : BaseService<*, *>> {
     @Autowired
-    lateinit var repository: T
+    lateinit var service: T
 }

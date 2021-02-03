@@ -1,6 +1,8 @@
 package com.cr.o.cdc.lavayacoins.fakes
 
+import com.cr.o.cdc.lavayacoins.db.AdminUser
 import com.cr.o.cdc.lavayacoins.db.CustomerUser
+import com.cr.o.cdc.lavayacoins.utils.Authority
 
 object MockFactory {
 
@@ -18,5 +20,15 @@ object MockFactory {
     fun getCustomerUserDummy() = CustomerUser(
             getUsernameDummy(),
             "1234"
+    )
+
+    fun getAdminUsername() = "admin"
+
+    fun getAdminPassword() = "admin"
+
+    fun getAdminUser() = AdminUser(
+            getAdminUsername(),
+            getAdminPassword(),
+            listOf(Authority.CREATE_ADMINS)
     )
 }
