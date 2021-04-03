@@ -124,7 +124,9 @@ type DeleteStoreSuccess{
     store:Store!
 }
 
-type DeleteStoreNotExist
+type DeleteStoreNotExist{
+    id:String!
+}
 
 type DeleteStoreInvalidAuthorities{
     neededAuthorities:[Authority]!
@@ -181,6 +183,6 @@ type Mutation {
     loginCustomerUser(input:LoginAdminUserInput!):LoginCustomerResult!
     createCustomerUser(input:CreateCustomerUserInput!):CreateCustomerResult!
     saveStore(input:SaveStoreInput!) :SaveStoreResult!
-    saveStores(input:SaveAllStoresInput!):SaveStoresResult
-    deleteStoreById(input:DeleteStoreByIdInput):DeleteStoreResult
+    saveStores(input:SaveAllStoresInput!):SaveStoresResult!
+    deleteStoreById(input:DeleteStoreByIdInput):DeleteStoreResult!
 }

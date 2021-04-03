@@ -1,3 +1,3 @@
 package com.cr.o.cdc.lavayacoins.responses
 
-object DeleteStoreNotExist : DeleteStoreResult
+data class DeleteStoreNotExist(val id: String) : DeleteStoreResult

@@ -122,7 +122,7 @@ class Mutation(
 
             } ?: CreateCustomerError(CreateCustomerErrorCause.USER_ALREADY_EXIST)
 
-    fun saveAllStoresInput(saveAllStoresInput: SaveAllStoresInput): SaveStoresResult {
+    fun saveStores(saveAllStoresInput: SaveAllStoresInput): SaveStoresResult {
         val neededAuthorities = listOf(Authority.ADMIN_STORES)
         return if (JWTToken.validateJWTToken(saveAllStoresInput.accessToken, neededAuthorities) != null) {
             SaveStoresSuccess(
@@ -139,7 +139,6 @@ class Mutation(
             SaveStoreErrorInvalidAuthorities(
                     neededAuthorities,
                     JWTToken.getAuthorities(saveAllStoresInput.accessToken)
-
             )
         }
     }
@@ -151,7 +150,7 @@ class Mutation(
             if (store != null) {
                 DeleteStoreSuccess(store)
             } else {
-                DeleteStoreNotExist
+                DeleteStoreNotExist(deleteStoreByIdInput.id)
             }
         } else {
             DeleteStoreInvalidAuthorities(

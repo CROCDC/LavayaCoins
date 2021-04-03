@@ -16,7 +16,7 @@ abstract class BaseService<T, ID>(private val repository: JpaRepository<T, ID>) 
 
     open fun delete(id: ID): T? {
         val store = findById(id)
-        return if (store == null) {
+        return if (store != null) {
             repository.deleteById(id)
             store
         } else {

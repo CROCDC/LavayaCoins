@@ -12,6 +12,7 @@ import com.cr.o.cdc.lavayacoins.repos.StoreRepository
 import com.cr.o.cdc.lavayacoins.responses.*
 import com.cr.o.cdc.lavayacoins.services.AdminUserService
 import com.cr.o.cdc.lavayacoins.services.CustomerUserService
+import com.cr.o.cdc.lavayacoins.services.StoreService
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
 import org.junit.Test
@@ -112,7 +113,7 @@ class MutationTest {
     ): Mutation = Mutation(
             customerUserService ?: Mockito.mock(CustomerUserService::class.java),
             adminUserService ?: Mockito.mock(AdminUserService::class.java),
-            Mockito.mock(StoreRepository::class.java)
+            Mockito.mock(StoreService::class.java)
     )
 
 
