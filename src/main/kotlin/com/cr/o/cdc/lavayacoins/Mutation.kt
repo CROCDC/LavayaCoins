@@ -55,7 +55,7 @@ class Mutation(
         }
     }
 
-    fun loginAdminUser(loginAdminUserInput: LoginAdminUserInput): LoginAdminResult? {
+    fun loginAdminUser(loginAdminUserInput: LoginAdminUserInput): LoginAdminResult {
         val adminUser = adminUserService.findById(loginAdminUserInput.username)
         return when {
             adminUser != null && loginAdminUserInput.password == adminUser.password -> LoginAdminSuccess(
