@@ -18,7 +18,7 @@ import junit.framework.TestCase.assertTrue
 import org.junit.Test
 import org.mockito.Mockito
 
-class MutationTest {
+class MutationAssertEqualsReturnTest {
 
 
     @Test
