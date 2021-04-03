@@ -1,14 +1,13 @@
 package com.cr.o.cdc.lavayacoins
 
-import com.cr.o.cdc.lavayacoins.db.AdminAuthority
 import com.cr.o.cdc.lavayacoins.db.AdminUser
 import com.cr.o.cdc.lavayacoins.db.CustomerUser
 import com.cr.o.cdc.lavayacoins.db.Store
 import com.cr.o.cdc.lavayacoins.inputs.*
-import com.cr.o.cdc.lavayacoins.repos.StoreRepository
 import com.cr.o.cdc.lavayacoins.responses.*
 import com.cr.o.cdc.lavayacoins.services.AdminUserService
 import com.cr.o.cdc.lavayacoins.services.CustomerUserService
+import com.cr.o.cdc.lavayacoins.services.StoreService
 import com.cr.o.cdc.lavayacoins.utils.Authority
 import com.cr.o.cdc.lavayacoins.utils.JWTToken
 import graphql.kickstart.tools.GraphQLMutationResolver
@@ -18,13 +17,14 @@ import org.springframework.stereotype.Component
 class Mutation(
         val userService: CustomerUserService,
         val adminUserService: AdminUserService,
-        val storeRepository: StoreRepository
+        val storeService: StoreService
 ) : GraphQLMutationResolver {
 
     fun saveStore(storeInput: SaveStoreInput): SaveStoreResult {
         val neededAuthorities = listOf(Authority.ADMIN_STORES)
         return if (JWTToken.validateJWTToken(storeInput.accessToken, neededAuthorities) != null) {
-            SaveStoreSuccess(storeRepository.save(Store("", storeInput.name, storeInput.location.toCoordinates())))
+            val store = storeInput.store
+            SaveStoreSuccess(storeService.save(Store(store.name, store.coordinates.toCoordinates()))!!)
         } else {
             SaveStoreErrorInvalidAuthorities(
                     neededAuthorities,
@@ -34,21 +34,26 @@ class Mutation(
         }
     }
 
-    fun loginCustomerUser(loginCustomerUserInput: LoginCustomerUserInput): CustomerUserCredentials? =
-            userService.findById(loginCustomerUserInput.username)
-                    ?.takeIf { it.password == loginCustomerUserInput.password }
-                    ?.let {
-                        CustomerUserCredentials(
-                                it,
-                                Credentials(
-                                        JWTToken.getJWTToken(
-                                                it.username,
-                                                listOf(Authority.SEND_TIPS)
-                                        ),
-                                        ""
-                                )
+    fun loginCustomerUser(loginCustomerUserInput: LoginCustomerUserInput): LoginCustomerResult {
+        val customerUser = userService.findById(loginCustomerUserInput.username)
+        return when {
+            customerUser != null && customerUser.password == loginCustomerUserInput.password ->
+                LoginCustomerSuccess(
+                        customerUser,
+                        Credentials(
+                                JWTToken.getJWTToken(
+                                        customerUser.username,
+                                        listOf(Authority.SEND_TIPS)
+                                ),
+                                ""
                         )
-                    }
+                )
+            customerUser != null && customerUser.password != loginCustomerUserInput.password ->
+                LoginCustomerError(LoginCustomerErrorCause.PASSWORD_MISMATCH)
+            customerUser == null -> LoginCustomerError(LoginCustomerErrorCause.USER_NOT_EXIST)
+            else -> LoginCustomerError(LoginCustomerErrorCause.UNKNOWN)
+        }
+    }
 
     fun loginAdminUser(loginAdminUserInput: LoginAdminUserInput): LoginAdminResult? {
         val adminUser = adminUserService.findById(loginAdminUserInput.username)
@@ -58,60 +63,53 @@ class Mutation(
                     Credentials(
                             JWTToken.getJWTToken(
                                     adminUser.username,
-                                    adminUser.adminAuthorities.map {
-                                        it.authority
-                                    }
+                                    adminUser.authorities
                             ),
                             ""
                     )
             )
             adminUser != null &&
                     loginAdminUserInput.password != adminUser.password ->
-                LoginAdminUserError(LoginAdminErrorCause.PASSWORD_MISMATCH)
-            adminUser == null -> LoginAdminUserError(LoginAdminErrorCause.USER_NOT_EXIST)
-            else -> LoginAdminUserError(LoginAdminErrorCause.UNKNOWN)
+                LoginAdminError(LoginAdminErrorCause.PASSWORD_MISMATCH)
+            adminUser == null -> LoginAdminError(LoginAdminErrorCause.USER_NOT_EXIST)
+            else -> LoginAdminError(LoginAdminErrorCause.UNKNOWN)
         }
     }
 
 
-    fun createAdminUser(createAdminUserInput: CreateAdminUserInput): CreateAdminResult = if (JWTToken.validateJWTToken(createAdminUserInput.accessToken, listOf(Authority.CREATE_ADMINS)) != null) {
-        adminUserService.save(
-                AdminUser(
-                        createAdminUserInput.username,
-                        createAdminUserInput.password,
-                        createAdminUserInput.authorities.map {
-                            AdminAuthority(
-                                    it,
-                                    "",
-                                    null
+    fun createAdminUser(createAdminUserInput: CreateAdminUserInput): CreateAdminResult =
+            if (JWTToken.validateJWTToken(createAdminUserInput.accessToken, listOf(Authority.CREATE_ADMINS)) != null) {
+                adminUserService.save(
+                        AdminUser(
+                                createAdminUserInput.username,
+                                createAdminUserInput.password,
+                                createAdminUserInput.authorities
+                        ),
+                        createAdminUserInput.username
+                )?.let {
+                    CreateAdminSuccess(
+                            it,
+                            Credentials(
+                                    JWTToken.getJWTToken(
+                                            it.username,
+                                            createAdminUserInput.authorities
+                                    ),
+                                    ""
                             )
-                        }
-                ),
-                createAdminUserInput.username
-        )?.let {
-            CreateAdminSuccess(
-                    it,
-                    Credentials(
-                            JWTToken.getJWTToken(
-                                    it.username,
-                                    createAdminUserInput.authorities
-                            ),
-                            ""
                     )
-            )
 
-        } ?: CreateAdminUserError(CreateAdminErrorCause.USER_ALREADY_EXIST)
-    } else {
-        CreateAdminUserError(CreateAdminErrorCause.INVALID_AUTHORITIES)
-    }
+                } ?: CreateAdminError(CreateAdminErrorCause.USER_ALREADY_EXIST)
+            } else {
+                CreateAdminError(CreateAdminErrorCause.INVALID_AUTHORITIES)
+            }
 
 
-    fun createCustomerUser(createCustomerUserInput: CreateCustomerUserInput): CustomerUserCredentials? =
+    fun createCustomerUser(createCustomerUserInput: CreateCustomerUserInput): CreateCustomerResult =
             userService.save(
                     CustomerUser(createCustomerUserInput.username, createCustomerUserInput.password),
                     createCustomerUserInput.username
             )?.let {
-                CustomerUserCredentials(
+                CreateCustomerSuccess(
                         it,
                         Credentials(
                                 JWTToken.getJWTToken(
@@ -122,6 +120,47 @@ class Mutation(
                         )
                 )
 
+            } ?: CreateCustomerError(CreateCustomerErrorCause.USER_ALREADY_EXIST)
+
+    fun saveAllStoresInput(saveAllStoresInput: SaveAllStoresInput): SaveStoresResult {
+        val neededAuthorities = listOf(Authority.ADMIN_STORES)
+        return if (JWTToken.validateJWTToken(saveAllStoresInput.accessToken, neededAuthorities) != null) {
+            SaveStoresSuccess(
+                    storeService.saveAll(
+                            saveAllStoresInput.stores.map {
+                                Store(
+                                        it.name,
+                                        it.coordinates.toCoordinates()
+                                )
+                            }
+                    )
+            )
+        } else {
+            SaveStoreErrorInvalidAuthorities(
+                    neededAuthorities,
+                    JWTToken.getAuthorities(saveAllStoresInput.accessToken)
+
+            )
+        }
+    }
+
+    fun deleteStoreById(deleteStoreByIdInput: DeleteStoreByIdInput): DeleteStoreResult {
+        val neededAuthorities = listOf(Authority.ADMIN_STORES)
+        return if (JWTToken.validateJWTToken(deleteStoreByIdInput.accessToken, neededAuthorities) != null) {
+            val store = storeService.delete(deleteStoreByIdInput.id)
+            if (store != null) {
+                DeleteStoreSuccess(store)
+            } else {
+                DeleteStoreNotExist
             }
+        } else {
+            DeleteStoreInvalidAuthorities(
+                    neededAuthorities,
+                    JWTToken.getAuthorities(deleteStoreByIdInput.accessToken)
+            )
+        }
+
+    }
+
 
 }

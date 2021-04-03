@@ -14,4 +14,6 @@ data class Store(
         val id: String,
         val name: String?,
         @Embedded val coordinates: Coordinates
-)
+) {
+    constructor(name: String?, coordinates: Coordinates) : this("", name, coordinates)
+}

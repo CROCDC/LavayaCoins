@@ -9,10 +9,7 @@ import com.cr.o.cdc.lavayacoins.fakes.MockFactory.getUsernameRomeroCamilo03
 import com.cr.o.cdc.lavayacoins.inputs.LoginAdminUserInput
 import com.cr.o.cdc.lavayacoins.inputs.LoginCustomerUserInput
 import com.cr.o.cdc.lavayacoins.repos.StoreRepository
-import com.cr.o.cdc.lavayacoins.responses.CustomerUserCredentials
-import com.cr.o.cdc.lavayacoins.responses.LoginAdminErrorCause
-import com.cr.o.cdc.lavayacoins.responses.LoginAdminSuccess
-import com.cr.o.cdc.lavayacoins.responses.LoginAdminUserError
+import com.cr.o.cdc.lavayacoins.responses.*
 import com.cr.o.cdc.lavayacoins.services.AdminUserService
 import com.cr.o.cdc.lavayacoins.services.CustomerUserService
 import junit.framework.TestCase.assertEquals
@@ -32,7 +29,7 @@ class MutationTest {
         )
 
         assertEquals(
-                null,
+                LoginCustomerError(LoginCustomerErrorCause.PASSWORD_MISMATCH),
                 mutation.loginCustomerUser(LoginCustomerUserInput(getUsernameRomeroCamilo03(), "1234"))
         )
     }
@@ -46,13 +43,13 @@ class MutationTest {
         )
 
         assertEquals(
-                LoginAdminUserError(LoginAdminErrorCause.PASSWORD_MISMATCH),
+                LoginAdminError(LoginAdminErrorCause.PASSWORD_MISMATCH),
                 mutation.loginAdminUser(LoginAdminUserInput(getAdminUsername(), "1234"))
         )
     }
 
     @Test
-    fun loginAdminWhenNotExist(){
+    fun loginAdminWhenNotExist() {
         val mutation = getMutation(
                 adminUserService = Mockito.mock(AdminUserService::class.java).apply {
                     Mockito.`when`(findById(getAdminUsername())).thenReturn(getAdminUser())
@@ -60,8 +57,22 @@ class MutationTest {
         )
 
         assertEquals(
-                LoginAdminUserError(LoginAdminErrorCause.USER_NOT_EXIST),
+                LoginAdminError(LoginAdminErrorCause.USER_NOT_EXIST),
                 mutation.loginAdminUser(LoginAdminUserInput("not exist", "1234"))
+        )
+    }
+
+    @Test
+    fun loginCustomerWhenNotExist(){
+        val mutation = getMutation(
+                Mockito.mock(CustomerUserService::class.java).apply {
+                    Mockito.`when`(findById(getUsernameRomeroCamilo03())).thenReturn(getCustomerUserRomeroCamilo03())
+                }
+        )
+
+        assertEquals(
+                LoginCustomerError(LoginCustomerErrorCause.USER_NOT_EXIST),
+                mutation.loginCustomerUser(LoginCustomerUserInput("not exist", "1234"))
         )
     }
 
@@ -77,21 +88,21 @@ class MutationTest {
                 mutation.loginCustomerUser(LoginCustomerUserInput(
                         getUsernameRomeroCamilo03(),
                         getPasswordRomeroCamilo03())
-                ) is CustomerUserCredentials
+                ) is LoginCustomerSuccess
         )
     }
 
     @Test
     fun loginAdminUserWithSamePassword() {
         val mutation = getMutation(
-               adminUserService =  Mockito.mock(AdminUserService::class.java).apply {
+                adminUserService = Mockito.mock(AdminUserService::class.java).apply {
                     Mockito.`when`(findById(getAdminUsername())).thenReturn(getAdminUser())
                 }
         )
 
         assertTrue(
                 mutation.loginAdminUser(LoginAdminUserInput(getAdminUsername(), getAdminPassword()))
-                       is LoginAdminSuccess
+                        is LoginAdminSuccess
         )
     }
 

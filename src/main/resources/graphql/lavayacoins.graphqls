@@ -1,7 +1,16 @@
 input SaveStoreInput{
-    name:String
-    location:CoordinatesInput!
+    store:StoreInput!
     accessToken:String!
+}
+
+input SaveAllStoresInput{
+    stores:[StoreInput]!
+    accessToken:String
+}
+
+input StoreInput{
+    name:String
+    coordinates:CoordinatesInput!
 }
 
 input CreateCustomerUserInput{
@@ -30,6 +39,11 @@ input CoordinatesInput{
     longitude:Float!
 }
 
+input DeleteStoreByIdInput{
+    id:String!
+    accessToken:String!
+}
+
 type Coordinates{
     latitude:Float!
     longitude:Float!
@@ -49,21 +63,10 @@ type CustomerUser{
 type AdminUser{
     username:String!
     password:String!
-    adminAuthorities :[AdminAuthority]!
+    authorities :[Authority]!
 }
 
-type AdminAuthority{
-    authority: Authority!,
-    creatorUsername: String!,
-    reason: String
-}
-
-type CustomerUserCredentials{
-    user:CustomerUser!
-    credentials:Credentials!
-}
-
-type LoginAdminUserError{
+type LoginAdminError{
     error:LoginAdminErrorCause!
 }
 
@@ -91,8 +94,41 @@ type CreateAdminSuccess{
     credentials:Credentials!
 }
 
-type CreateAdminUserError{
+type CreateAdminError{
     error:CreateAdminErrorCause!
+}
+
+type LoginCustomerError{
+    error:LoginCustomerErrorCause!
+}
+
+type LoginCustomerSuccess{
+    user:CustomerUser!
+    credentials:Credentials!
+}
+
+type CreateCustomerError{
+    error:CreateCustomerErrorCause!
+}
+
+type CreateCustomerSuccess{
+    user:CustomerUser!
+    credentials:Credentials!
+}
+
+type SaveStoresSuccess{
+    stores:[Store]!
+}
+
+type DeleteStoreSuccess{
+    store:Store!
+}
+
+type DeleteStoreNotExist
+
+type DeleteStoreInvalidAuthorities{
+    neededAuthorities:[Authority]!
+    sendAuthorities:[Authority]!
 }
 
 enum Authority{
@@ -111,11 +147,29 @@ enum CreateAdminErrorCause{
     USER_ALREADY_EXIST
 }
 
+enum LoginCustomerErrorCause{
+    PASSWORD_MISMATCH,
+    USER_NOT_EXIST,
+    UNKNOWN
+}
+
+enum CreateCustomerErrorCause{
+    USER_ALREADY_EXIST
+}
+
 union SaveStoreResult = SaveStoreErrorInvalidAuthorities | SaveStoreSuccess
 
-union LoginAdminResult = LoginAdminUserError | LoginAdminSuccess
+union LoginAdminResult = LoginAdminError | LoginAdminSuccess
 
-union CreateAdminResult = CreateAdminSuccess | CreateAdminUserError
+union CreateAdminResult = CreateAdminSuccess | CreateAdminError
+
+union LoginCustomerResult = LoginCustomerError | LoginCustomerSuccess
+
+union CreateCustomerResult = CreateCustomerError | CreateCustomerSuccess
+
+union SaveStoresResult = SaveStoresSuccess | SaveStoreErrorInvalidAuthorities
+
+union DeleteStoreResult = DeleteStoreSuccess | DeleteStoreNotExist | DeleteStoreInvalidAuthorities
 
 type Query {
     findAllStores:[Store]!
@@ -124,7 +178,9 @@ type Query {
 type Mutation {
     loginAdminUser(input:LoginCustomerUserInput!):LoginAdminResult!
     createAdminUser(input:CreateAdminUserInput!):CreateAdminResult!
-    loginCustomerUser(input:LoginAdminUserInput!):CustomerUserCredentials
-    createCustomerUser(input:CreateCustomerUserInput!):CustomerUserCredentials
+    loginCustomerUser(input:LoginAdminUserInput!):LoginCustomerResult!
+    createCustomerUser(input:CreateCustomerUserInput!):CreateCustomerResult!
     saveStore(input:SaveStoreInput!) :SaveStoreResult!
+    saveStores(input:SaveAllStoresInput!):SaveStoresResult
+    deleteStoreById(input:DeleteStoreByIdInput):DeleteStoreResult
 }
