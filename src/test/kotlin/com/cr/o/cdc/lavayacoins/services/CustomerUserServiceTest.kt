@@ -1,7 +1,9 @@
 package com.cr.o.cdc.lavayacoins.services
 
+import com.cr.o.cdc.lavayacoins.fakes.MockFactory.getCustomerUserDelete
 import com.cr.o.cdc.lavayacoins.fakes.MockFactory.getCustomerUserDummy
 import com.cr.o.cdc.lavayacoins.fakes.MockFactory.getCustomerUserRomeroCamilo03
+import com.cr.o.cdc.lavayacoins.fakes.MockFactory.getUsernameDelete
 import com.cr.o.cdc.lavayacoins.fakes.MockFactory.getUsernameDummy
 import com.cr.o.cdc.lavayacoins.fakes.MockFactory.getUsernameRomeroCamilo03
 import com.cr.o.cdc.lavayacoins.testutils.ServiceTest
@@ -44,6 +46,22 @@ class CustomerUserServiceTest : ServiceTest<CustomerUserService>() {
         assertEquals(
                 getCustomerUserDummy(),
                 service.save(getCustomerUserDummy(), getUsernameDummy())
+        )
+    }
+
+    @Test
+    fun deleteWhenNotExist() {
+        assertEquals(
+                null,
+                service.delete("")
+        )
+    }
+
+    @Test
+    fun deleteWhenExist() {
+        assertEquals(
+                getCustomerUserDelete(),
+                service.delete(getUsernameDelete())
         )
     }
 }

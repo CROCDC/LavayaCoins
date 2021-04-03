@@ -15,10 +15,10 @@ abstract class BaseService<T, ID>(private val repository: JpaRepository<T, ID>) 
     open fun findById(id: ID): T? = repository.findById(id).value()
 
     open fun delete(id: ID): T? {
-        val store = findById(id)
-        return if (store != null) {
+        val t = findById(id)
+        return if (t != null) {
             repository.deleteById(id)
-            store
+            t
         } else {
             null
         }

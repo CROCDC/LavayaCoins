@@ -27,6 +27,15 @@ object MockFactory {
             getPasswordRomeroCamilo03()
     )
 
+    fun getUsernameDelete(): String = "delete"
+
+    fun getPasswordDelete(): String = "delete"
+
+    fun getCustomerUserDelete():CustomerUser = CustomerUser(
+            getUsernameDelete(),
+            getPasswordDelete()
+    )
+
     fun getCustomerUserDummy(): CustomerUser = CustomerUser(
             getUsernameDummy(),
             "1234"
