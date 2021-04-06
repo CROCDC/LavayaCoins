@@ -1,6 +1,5 @@
 package com.cr.o.cdc.lavayacoins.services
 
-import com.cr.o.cdc.lavayacoins.utils.value
 import org.springframework.data.jpa.repository.JpaRepository
 
 abstract class BaseService<T, ID>(private val repository: JpaRepository<T, ID>) {
@@ -12,7 +11,7 @@ abstract class BaseService<T, ID>(private val repository: JpaRepository<T, ID>) 
                 null
             }
 
-    open fun findById(id: ID): T? = repository.findById(id).value()
+    open fun findById(id: ID): T? = repository.findById(id).takeIf { it.get() != null }?.get()
 
     open fun delete(id: ID): T? {
         val t = findById(id)

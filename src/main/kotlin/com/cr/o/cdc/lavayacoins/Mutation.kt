@@ -20,15 +20,14 @@ class Mutation(
         val storeService: StoreService
 ) : GraphQLMutationResolver {
 
-    fun saveStore(storeInput: SaveStoreInput): SaveStoreResult {
+    fun saveStore(saveStoreInput: SaveStoreInput): SaveStoreResult {
         val neededAuthorities = listOf(Authority.ADMIN_STORES)
-        return if (JWTToken.validateJWTToken(storeInput.accessToken, neededAuthorities) != null) {
-            val store = storeInput.store
-            SaveStoreSuccess(storeService.save(Store(store.name, store.coordinates.toCoordinates()))!!)
+        return if (JWTToken.validateJWTToken(saveStoreInput.accessToken, neededAuthorities) != null) {
+            SaveStoreSuccess(storeService.save(saveStoreInput.store))
         } else {
             SaveStoreErrorInvalidAuthorities(
                     neededAuthorities,
-                    JWTToken.getAuthorities(storeInput.accessToken)
+                    JWTToken.getAuthorities(saveStoreInput.accessToken)
 
             )
         }
@@ -44,8 +43,7 @@ class Mutation(
                                 JWTToken.getJWTToken(
                                         customerUser.username,
                                         listOf(Authority.SEND_TIPS)
-                                ),
-                                ""
+                                )
                         )
                 )
             customerUser != null && customerUser.password != loginCustomerUserInput.password ->
@@ -64,8 +62,7 @@ class Mutation(
                             JWTToken.getJWTToken(
                                     adminUser.username,
                                     adminUser.authorities
-                            ),
-                            ""
+                            )
                     )
             )
             adminUser != null &&
@@ -93,8 +90,7 @@ class Mutation(
                                     JWTToken.getJWTToken(
                                             it.username,
                                             createAdminUserInput.authorities
-                                    ),
-                                    ""
+                                    )
                             )
                     )
 
@@ -115,8 +111,7 @@ class Mutation(
                                 JWTToken.getJWTToken(
                                         it.username,
                                         listOf(Authority.SEND_TIPS)
-                                ),
-                                ""
+                                )
                         )
                 )
 
@@ -130,7 +125,7 @@ class Mutation(
                             saveAllStoresInput.stores.map {
                                 Store(
                                         it.name,
-                                        it.coordinates.toCoordinates()
+                                        it.coordinatesInput.toCoordinates()
                                 )
                             }
                     )

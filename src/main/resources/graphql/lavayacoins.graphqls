@@ -10,7 +10,7 @@ input SaveAllStoresInput{
 
 input StoreInput{
     name:String
-    coordinates:CoordinatesInput!
+    coordinatesInput:CoordinatesInput!
 }
 
 input CreateCustomerUserInput{
@@ -34,14 +34,14 @@ input LoginAdminUserInput{
     password:String!
 }
 
-input CoordinatesInput{
-    latitude:Float!
-    longitude:Float!
-}
-
 input DeleteStoreByIdInput{
     id:String!
     accessToken:String!
+}
+
+input CoordinatesInput{
+    latitude:Float!
+    longitude:Float!
 }
 
 type Coordinates{
@@ -72,7 +72,6 @@ type LoginAdminError{
 
 type Credentials{
     accessToken:String!
-    refreshToken:String!
 }
 
 type SaveStoreErrorInvalidAuthorities {

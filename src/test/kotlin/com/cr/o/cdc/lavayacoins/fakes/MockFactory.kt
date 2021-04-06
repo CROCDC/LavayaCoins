@@ -70,6 +70,6 @@ object MockFactory {
 
     fun StoreInput.toStore(): Store = Store(
             name,
-            coordinates.toCoordinates()
+            coordinatesInput.toCoordinates()
     )
 }
