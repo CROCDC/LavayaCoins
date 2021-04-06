@@ -9,7 +9,7 @@ Lavaya (por si no conocen a la empresa lavaya https://lavaya.com/)
 
 ### Text coverage
 
-![](https://drive.google.com/file/d/1Gj-EqL-O_hEwaBHfee8k9Z-2rkyz-q6f/view?usp=sharing)
+![](https://postimg.cc/qNzwwcNt)
 
 #### Demo
 una demostracion de la app esta hosteada en heroku(https://lavayacoins.herokuapp.com/graphiql),
