@@ -25,11 +25,7 @@ class Mutation(
         return if (JWTToken.validateJWTToken(saveStoreInput.accessToken, neededAuthorities) != null) {
             SaveStoreSuccess(storeService.save(saveStoreInput.store))
         } else {
-            SaveStoreErrorInvalidAuthorities(
-                    neededAuthorities,
-                    JWTToken.getAuthorities(saveStoreInput.accessToken)
-
-            )
+            SaveStoreErrorInvalidAuthorities(saveStoreInput.accessToken)
         }
     }
 
@@ -74,30 +70,32 @@ class Mutation(
     }
 
 
-    fun createAdminUser(createAdminUserInput: CreateAdminUserInput): CreateAdminResult =
-            if (JWTToken.validateJWTToken(createAdminUserInput.accessToken, listOf(Authority.CREATE_ADMINS)) != null) {
-                adminUserService.save(
-                        AdminUser(
-                                createAdminUserInput.username,
-                                createAdminUserInput.password,
-                                createAdminUserInput.authorities
-                        ),
-                        createAdminUserInput.username
-                )?.let {
-                    CreateAdminSuccess(
-                            it,
-                            Credentials(
-                                    JWTToken.getJWTToken(
-                                            it.username,
-                                            createAdminUserInput.authorities
-                                    )
-                            )
-                    )
+    fun createAdminUser(createAdminUserInput: CreateAdminUserInput): CreateAdminResult {
+        val authorities = listOf(Authority.ADMIN_STORES)
+        return if (JWTToken.validateJWTToken(createAdminUserInput.accessToken, listOf(Authority.CREATE_ADMINS)) != null) {
+            adminUserService.save(
+                    AdminUser(
+                            createAdminUserInput.username,
+                            createAdminUserInput.password,
+                            authorities
+                    ),
+                    createAdminUserInput.username
+            )?.let {
+                CreateAdminSuccess(
+                        it,
+                        Credentials(
+                                JWTToken.getJWTToken(
+                                        it.username,
+                                        authorities
+                                )
+                        )
+                )
 
-                } ?: CreateAdminError(CreateAdminErrorCause.USER_ALREADY_EXIST)
-            } else {
-                CreateAdminError(CreateAdminErrorCause.INVALID_AUTHORITIES)
-            }
+            } ?: CreateAdminError(CreateAdminErrorCause.USER_ALREADY_EXIST)
+        } else {
+            CreateAdminError(CreateAdminErrorCause.INVALID_AUTHORITIES)
+        }
+    }
 
 
     fun createCustomerUser(createCustomerUserInput: CreateCustomerUserInput): CreateCustomerResult =
@@ -131,10 +129,7 @@ class Mutation(
                     )
             )
         } else {
-            SaveStoreErrorInvalidAuthorities(
-                    neededAuthorities,
-                    JWTToken.getAuthorities(saveAllStoresInput.accessToken)
-            )
+            SaveStoreErrorInvalidAuthorities(saveAllStoresInput.accessToken)
         }
     }
 
@@ -148,10 +143,7 @@ class Mutation(
                 DeleteStoreNotExist(deleteStoreByIdInput.id)
             }
         } else {
-            DeleteStoreInvalidAuthorities(
-                    neededAuthorities,
-                    JWTToken.getAuthorities(deleteStoreByIdInput.accessToken)
-            )
+            DeleteStoreInvalidAuthorities(deleteStoreByIdInput.accessToken)
         }
 
     }

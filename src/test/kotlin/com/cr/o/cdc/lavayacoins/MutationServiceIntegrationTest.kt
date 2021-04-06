@@ -15,14 +15,14 @@ class MutationServiceIntegrationTest {
 
     @Test
     fun saveStore() {
-        val store = MockFactory.getStoreInput().toStore()
+        val storeInput = MockFactory.getStoreInput()
         val storeService = Mockito.mock(StoreService::class.java).apply {
-            Mockito.`when`(save(store)).thenReturn(store)
+            Mockito.`when`(save(storeInput)).thenReturn(storeInput.toStore())
         }
         getMutation(storeService = storeService).saveStore(
                 MockFactory.getSaveStoreInput()
         )
-        verify(storeService, times(1)).save(store)
+        verify(storeService, times(1)).save(storeInput)
     }
 
     private fun getMutation(

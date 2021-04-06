@@ -3,14 +3,47 @@ Lavaya Coins
 
 
 ### Objetivo de la app
-
 el objetivo de esta app es ser una base de datos que enlista todos lo lugares de venta de monedas de la empresa
 Lavaya (por si no conocen a la empresa lavaya https://lavaya.com/)
 
 
 #### Demo
+una demostracion de la app esta hosteada en heroku(https://lavayacoins.herokuapp.com/graphiql),
+Heroku apaga el servidor cuando deja de recibir trafico por una hora asi q puede tardar un poco en levantar.
+A continuar voy a dejar queries y mutations para poder probar la demo:
 
+#### Tiendas
 
+###### [findAllStores](https://lavayacoins.herokuapp.com/graphiql?query=%7B%0A%20%20findAllStores%20%7B%0A%20%20%20%20id%0A%20%20%20%20coordinates%20%7B%0A%20%20%20%20%20%20latitude%0A%20%20%20%20%20%20longitude%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D%0A)
+
+###### [saveStore](https://lavayacoins.herokuapp.com/graphiql?query=mutation%7B%0A%20%20saveStore(input%3A%7B%0A%20%20%20%20accessToken%3A%22eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdG9yZXMiLCJleHAiOjE2MTg1NDMwNTUsImF1dGhvcml0aWVzIjpbIkFETUlOX1NUT1JFUyJdfQ.HI7vq9Kce5MS1szPHO2cua7kumJKSfn802EQ0AAwcSvvok-bX_BfbiOL-4C7zjITveLDbmMShrN89NwHqCL5NQ%22%0A%20%20%20%20store%3A%7B%0A%20%20%20%20%20%20name%3A%22Ciudad%20De%20La%20paz%20151%22%2C%0A%20%20%20%20%20%20coordinatesInput%3A%7B%0A%20%20%20%20%20%20%20%20latitude%3A-34.5811182%2C%0A%20%20%20%20%20%20%20%20longitude%3A-58.4287506%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D)%7B%0A%20%20%20%20...%20on%20SaveStoreSuccess%7B%0A%20%20%20%20%20%20store%7B%0A%20%20%20%20%20%20%20%20name%0A%20%20%20%20%20%20%20%20coordinates%7B%0A%20%20%20%20%20%20%20%20%20%20latitude%0A%20%20%20%20%20%20%20%20%20%20longitude%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D%0A%0A)
+
+###### [deleteStoreById](https://lavayacoins.herokuapp.com/graphiql?query=mutation%7B%0A%20%20deleteStoreById(input%3A%7B%0A%20%20%20%20id%3A%22402880fc775e60ba01775e64531e0000%22%2C%0A%20%20%20%20accessToken%3A%22eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdG9yZXMiLCJleHAiOjE2MTg1NDQyNDEsImF1dGhvcml0aWVzIjpbIkFETUlOX1NUT1JFUyJdfQ.i1vzZqHmAvVbIEKypPyRxN5WCBPPjk2nKhpc8yHiLOIn--lu43_ZiL6icRl22TbnvysiMnQP3Bn0hjjOqNnqyQ%22%0A%20%20%7D)%20%7B%0A%20%20%20...%20on%20DeleteStoreSuccess%7B%0A%20%20%20%20store%7B%0A%20%20%20%20%20%20id%0A%20%20%20%20%7D%0A%20%20%7D%0A%20%20%7D%0A%7D%0A)
+
+#### Usuarios
+
+datos de Usuarios 
+
+admin con authority CREATE_ADMINS
+
+username:"admin"
+password:"admin"
+
+admin con authority ADMIN_STORES
+
+username:"stores"
+password:"stores"
+
+customer
+
+username:"customer"
+password:"customer"
+
+###### [createAdminUser]()
+
+###### [loginAdminUser](https://lavayacoins.herokuapp.com/graphiql?query=mutation%7B%0A%20%20loginAdminUser(input%3A%7B%0A%20%20%20%20username%3A%22stores%22%0A%20%20%20%20password%3A%22stores%22%0A%20%20%7D)%7B%0A%20%20%20%20...%20on%20LoginAdminSuccess%7B%0A%20%20%20%20%20%20user%7B%0A%20%20%20%20%20%20%20%20username%0A%20%20%20%20%20%20%20%20password%0A%20%20%20%20%20%20%20%20authorities%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20credentials%7B%0A%20%20%20%20%20%20%20%20accessToken%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D%0A)
+
+##### [loginCustomerUser](https://lavayacoins.herokuapp.com/graphiql?query=mutation%7B%0A%20%20loginCustomerUser(input%3A%7B%0A%20%20%20%20username%3A%22customer%22%0A%20%20%20%20password%3A%22customer%22%0A%20%20%7D)%7B%0A%20%20%20%20...%20on%20LoginCustomerSuccess%7B%0A%20%20%20%20%20%20user%7B%0A%20%20%20%20%20%20%20%20username%0A%20%20%20%20%20%20%20%20password%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20credentials%7B%0A%20%20%20%20%20%20%20%20accessToken%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D%0A)
 
 #### Explicación de la app
 
@@ -47,7 +80,6 @@ en caso de el accessToken sea invalido devolvera DeleteStoreInvalidAuthorities
 - en caso de que el accessToken sea válido y la tienda exista se devolverá DeleteStoreSuccess
 
 ##### Usuarios
-
 
 ###### createAdminUser
 este método permite crear un usuario admin con las authorities (ADMIN_STORES, SEND_TIPS) siempre y

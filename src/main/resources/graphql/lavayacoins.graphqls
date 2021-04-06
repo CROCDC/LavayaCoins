@@ -22,7 +22,6 @@ input CreateAdminUserInput{
     username:String!
     password:String!
     accessToken:String!
-    authorities:[Authority]!
 }
 
 input LoginCustomerUserInput{
@@ -63,7 +62,6 @@ type CustomerUser{
 type AdminUser{
     username:String!
     password:String!
-    authorities :[Authority]!
 }
 
 type LoginAdminError{
@@ -75,8 +73,7 @@ type Credentials{
 }
 
 type SaveStoreErrorInvalidAuthorities {
-    neededAuthorities:[Authority]!
-    sendAuthorities:[Authority]!
+    invalidAccessToken:String!
 }
 
 type SaveStoreSuccess {
@@ -128,13 +125,7 @@ type DeleteStoreNotExist{
 }
 
 type DeleteStoreInvalidAuthorities{
-    neededAuthorities:[Authority]!
-    sendAuthorities:[Authority]!
-}
-
-enum Authority{
-    ADMIN_STORES,
-    SEND_TIPS
+    invalidAccessToken:String!
 }
 
 enum LoginAdminErrorCause{
