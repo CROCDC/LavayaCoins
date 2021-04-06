@@ -41,7 +41,7 @@ password:"customer"
 
 ###### [createAdminUser]()
 
-###### [loginAdminUser](https://lavayacoins.herokuapp.com/graphiql?query=mutation%7B%0A%20%20loginAdminUser(input%3A%7B%0A%20%20%20%20username%3A%22stores%22%0A%20%20%20%20password%3A%22stores%22%0A%20%20%7D)%7B%0A%20%20%20%20...%20on%20LoginAdminSuccess%7B%0A%20%20%20%20%20%20user%7B%0A%20%20%20%20%20%20%20%20username%0A%20%20%20%20%20%20%20%20password%0A%20%20%20%20%20%20%20%20authorities%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20credentials%7B%0A%20%20%20%20%20%20%20%20accessToken%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D%0A)
+###### [loginAdminUser](https://lavayacoins.herokuapp.com/graphiql?query=mutation%7B%0A%20%20loginAdminUser(input%3A%7B%0A%20%20%20%20username%3A%22stores%22%0A%20%20%20%20password%3A%22stores%22%0A%20%20%7D)%7B%0A%20%20%20%20...%20on%20LoginAdminSuccess%7B%0A%20%20%20%20%20%20user%7B%0A%20%20%20%20%20%20%20%20username%0A%20%20%20%20%20%20%20%20password%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20credentials%7B%0A%20%20%20%20%20%20%20%20accessToken%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D%0A)
 
 ##### [loginCustomerUser](https://lavayacoins.herokuapp.com/graphiql?query=mutation%7B%0A%20%20loginCustomerUser(input%3A%7B%0A%20%20%20%20username%3A%22customer%22%0A%20%20%20%20password%3A%22customer%22%0A%20%20%7D)%7B%0A%20%20%20%20...%20on%20LoginCustomerSuccess%7B%0A%20%20%20%20%20%20user%7B%0A%20%20%20%20%20%20%20%20username%0A%20%20%20%20%20%20%20%20password%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20credentials%7B%0A%20%20%20%20%20%20%20%20accessToken%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D%0A)
 

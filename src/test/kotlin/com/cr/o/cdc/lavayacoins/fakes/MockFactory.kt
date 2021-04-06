@@ -24,21 +24,26 @@ object MockFactory {
 
     fun getCustomerUserRomeroCamilo03(): CustomerUser = CustomerUser(
             getUsernameRomeroCamilo03(),
-            getPasswordRomeroCamilo03()
+            getPasswordRomeroCamilo03(),
+            getAuthoritiesOfCustomerUser()
     )
 
     fun getUsernameDelete(): String = "delete"
 
     fun getPasswordDelete(): String = "delete"
 
+    fun getAuthoritiesOfCustomerUser(): List<Authority> = listOf(Authority.SEND_TIPS)
+
     fun getCustomerUserDelete():CustomerUser = CustomerUser(
             getUsernameDelete(),
-            getPasswordDelete()
+            getPasswordDelete(),
+            getAuthoritiesOfCustomerUser()
     )
 
     fun getCustomerUserDummy(): CustomerUser = CustomerUser(
             getUsernameDummy(),
-            "1234"
+            "1234",
+            getAuthoritiesOfCustomerUser()
     )
 
     fun getAdminUsername(): String = "admin"

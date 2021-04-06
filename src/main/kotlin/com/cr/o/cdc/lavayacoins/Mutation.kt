@@ -38,7 +38,7 @@ class Mutation(
                         Credentials(
                                 JWTToken.getJWTToken(
                                         customerUser.username,
-                                        listOf(Authority.SEND_TIPS)
+                                        customerUser.authorities
                                 )
                         )
                 )
@@ -98,22 +98,24 @@ class Mutation(
     }
 
 
-    fun createCustomerUser(createCustomerUserInput: CreateCustomerUserInput): CreateCustomerResult =
-            userService.save(
-                    CustomerUser(createCustomerUserInput.username, createCustomerUserInput.password),
-                    createCustomerUserInput.username
-            )?.let {
-                CreateCustomerSuccess(
-                        it,
-                        Credentials(
-                                JWTToken.getJWTToken(
-                                        it.username,
-                                        listOf(Authority.SEND_TIPS)
-                                )
-                        )
-                )
+    fun createCustomerUser(createCustomerUserInput: CreateCustomerUserInput): CreateCustomerResult {
+        val authorities = listOf(Authority.SEND_TIPS)
+        return userService.save(
+                CustomerUser(createCustomerUserInput.username, createCustomerUserInput.password, authorities),
+                createCustomerUserInput.username
+        )?.let {
+            CreateCustomerSuccess(
+                    it,
+                    Credentials(
+                            JWTToken.getJWTToken(
+                                    it.username,
+                                    authorities
+                            )
+                    )
+            )
 
-            } ?: CreateCustomerError(CreateCustomerErrorCause.USER_ALREADY_EXIST)
+        } ?: CreateCustomerError(CreateCustomerErrorCause.USER_ALREADY_EXIST)
+    }
 
     fun saveStores(saveAllStoresInput: SaveAllStoresInput): SaveStoresResult {
         val neededAuthorities = listOf(Authority.ADMIN_STORES)
