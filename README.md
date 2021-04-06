@@ -7,6 +7,10 @@ el objetivo de esta app es ser una base de datos que enlista todos lo lugares de
 Lavaya (por si no conocen a la empresa lavaya https://lavaya.com/)
 
 
+### Text coverage
+
+![](https://drive.google.com/file/d/1Gj-EqL-O_hEwaBHfee8k9Z-2rkyz-q6f/view?usp=sharing)
+
 #### Demo
 una demostracion de la app esta hosteada en heroku(https://lavayacoins.herokuapp.com/graphiql),
 Heroku apaga el servidor cuando deja de recibir trafico por una hora asi q puede tardar un poco en levantar.
@@ -39,7 +43,9 @@ customer
 username:"customer"
 password:"customer"
 
-###### [createAdminUser]()
+##### [createCustomerUser](https://lavayacoins.herokuapp.com/graphiql?query=mutation%7B%0A%20%20createCustomerUser(input%3A%7B%0A%20%20%20%20username%3A%22TEST%22%0A%20%20%20%20password%3A%22TEST%22%0A%20%20%7D)%7B%0A%20%20%20%20...%20on%20CreateCustomerSuccess%7B%0A%20%20%20%20%20%20user%7B%0A%20%20%20%20%20%20%20%20username%0A%20%20%20%20%20%20%20%20password%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20credentials%7B%0A%20%20%20%20%20%20%20%20accessToken%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D%0A)
+
+###### [createAdminUser](https://lavayacoins.herokuapp.com/graphiql?query=mutation%7B%0A%20%20createAdminUser(input%3A%7B%0A%20%20%20%20accessToken%3A%22eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTYxODU0NTk3OCwiYXV0aG9yaXRpZXMiOlsiQ1JFQVRFX0FETUlOUyJdfQ.P16oIFn8Y3I4IJJTTeG0RrEQ6iMAIFTPf8q1nw0MOtKkrj6ByFDX04y7sPjp6-Y_sn49rkdIZ8hV9aTPKQkbVQ%22%0A%20%20%20%20username%3A%22TEST%22%0A%20%20%20%20password%3A%22TEST%22%0A%20%20%7D)%7B%0A%20%20%20%20...%20on%20CreateAdminSuccess%7B%0A%20%20%20%20%20%20user%7B%0A%20%20%20%20%20%20%20%20username%0A%20%20%20%20%20%20%20%20password%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20credentials%7B%0A%20%20%20%20%20%20%20%20accessToken%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D%0A)
 
 ###### [loginAdminUser](https://lavayacoins.herokuapp.com/graphiql?query=mutation%7B%0A%20%20loginAdminUser(input%3A%7B%0A%20%20%20%20username%3A%22stores%22%0A%20%20%20%20password%3A%22stores%22%0A%20%20%7D)%7B%0A%20%20%20%20...%20on%20LoginAdminSuccess%7B%0A%20%20%20%20%20%20user%7B%0A%20%20%20%20%20%20%20%20username%0A%20%20%20%20%20%20%20%20password%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20credentials%7B%0A%20%20%20%20%20%20%20%20accessToken%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D%0A)
 
